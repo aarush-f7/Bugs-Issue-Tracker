@@ -10,6 +10,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const connectDB = require("./config/db");
+const cors = require("cors");
 
 // ─────────────────────────────────────────────
 // Load environment variables from .env file
@@ -32,6 +33,11 @@ const app = express();
 // These run on EVERY incoming request
 // ─────────────────────────────────────────────
 
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:3000"],
+  credentials: true
+}));
+
 // Parse incoming JSON request bodies (req.body)
 app.use(express.json());
 
@@ -42,11 +48,11 @@ app.use(express.urlencoded({ extended: false }));
 // Routes
 // Each route file handles a specific resource
 // ─────────────────────────────────────────────
-app.use("/api/auth",      require("./routes/auth"));
-app.use("/api/users",     require("./routes/users"));
-app.use("/api/projects",  require("./routes/projects"));
-app.use("/api/sprints",   require("./routes/sprints"));
-app.use("/api/bugs",      require("./routes/bugs"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/projects", require("./routes/projects"));
+app.use("/api/sprints", require("./routes/sprints"));
+app.use("/api/bugs", require("./routes/bugs"));
 app.use("/api/dashboard", require("./routes/dashboard"));
 // Note: Comments and Activity Log routes are nested under /api/bugs
 // and are registered inside routes/bugs.js using express.Router()

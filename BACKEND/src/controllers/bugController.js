@@ -130,20 +130,26 @@ const updateBugStatus = async (req, res) => {
     const { status } = req.body;
     if (!status) return res.status(400).json({ message: "Please provide a status." });
 
+    /// Added today---------------------------
+    if (!req.user) return res.status(401).json({ message: "Unauthorized." });
+    if (req.user.role !== "Developer") return res.status(403).json({ message: "Only developers can update bug status." });
+
     const bug = await Bug.findById(req.params.id);
     if (!bug) return res.status(404).json({ message: "Bug not found." });
 
     // Log the activity if status changed
     const oldStatus = bug.status;
-    
+
     bug.status = status;
     const updatedBug = await bug.save();
 
     // Fire & Forget logging
-    await logActivity(bug._id, req.user._id, "status", oldStatus, status);
+    logActivity(bug._id, req.user._id, "status", oldStatus, status).catch((err) =>
+      console.error("Activity log failed:", err));
 
     res.status(200).json({ message: "Bug status updated", bug: updatedBug });
   } catch (error) {
+    console.error("updateBugStatus error:", error.message);   /// Added today----------------
     res.status(500).json({ message: "Server error. Please try again." });
   }
 };

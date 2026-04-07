@@ -200,6 +200,42 @@ const deleteBug = async (req, res) => {
   }
 };
 
+
+// Adding two more functions to get bug assigned and bug reported to whom:------------------------
+
+// @route   GET /api/bugs/assigned/me
+// @desc    Get bugs assigned to the logged-in developer
+// @access  Private (Developer)
+const getAssignedToMe = async (req, res) => {
+  try {
+    const bugs = await Bug.find({ assignedTo: req.user._id })
+      .populate("project", "name")
+      .populate("sprint", "name")
+      .populate("createdBy", "name email");
+
+    res.status(200).json({ count: bugs.length, bugs });
+  } catch (error) {
+    res.status(500).json({ message: "Server error. Please try again." });
+  }
+};
+
+// @route   GET /api/bugs/reported/me
+// @desc    Get bugs reported/created by the logged-in tester
+// @access  Private (Tester)
+const getReportedByMe = async (req, res) => {
+  try {
+    const bugs = await Bug.find({ createdBy: req.user._id })
+      .populate("project", "name")
+      .populate("sprint", "name")
+      .populate("assignedTo", "name email");
+
+    res.status(200).json({ count: bugs.length, bugs });
+  } catch (error) {
+    res.status(500).json({ message: "Server error. Please try again." });
+  }
+};
+
+
 module.exports = {
   createBug,
   getBugs,
@@ -208,4 +244,6 @@ module.exports = {
   updateBugStatus,
   assignBug,
   deleteBug,
+  getAssignedToMe,
+  getReportedByMe,
 };

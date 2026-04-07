@@ -12,7 +12,10 @@ const {
   updateBugStatus,
   assignBug,
   deleteBug,
+  getAssignedToMe,
+  getReportedByMe,
 } = require("../controllers/bugController");
+
 
 // Middlewares
 const protect = require("../middlewares/protect");
@@ -24,6 +27,11 @@ const commentRouter = require("./comments");
 
 // All routes require authentication
 router.use(protect);
+
+
+//Adding these two routes of new functions (getAssignedToMe, getReportedByMe) added today-------------
+router.get("/assigned/me", roleGuard("Developer"), getAssignedToMe);
+router.get("/reported/me", roleGuard("Tester"), getReportedByMe);
 
 // ──────────────────────────────────────────────
 // Mount sub-routers for nested resources
